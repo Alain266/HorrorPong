@@ -46,12 +46,12 @@ const SCREAMER_DURATION = 1000; // Durée du screamer en ms (1 seconde)
 
 // NOUVEAU : Définition des délais MIN/MAX pour la progression de la difficulté
 const INITIAL_MIN_SCREAMER_DELAY = 15 * 1000; // Délai minimum initial (15 secondes)
-const INITIAL_MAX_SCREAMER_DELAY = 60 * 1000; // Délai maximum initial (60 secondes)
+const INITIAL_MAX_SCREAMER_DELAY = 45 * 1000; // Délai maximum initial (45 secondes)
 
-const FINAL_MIN_SCREAMER_DELAY = 10 * 1000;   // Délai minimum cible à haute difficulté (10 secondes)
-const FINAL_MAX_SCREAMER_DELAY = 15 * 1000;  // Délai maximum cible à haute difficulté (15 secondes)
+const FINAL_MIN_SCREAMER_DELAY = 5 * 1000;   // Délai minimum cible à haute difficulté (5 secondes)
+const FINAL_MAX_SCREAMER_DELAY = 25 * 1000;  // Délai maximum cible à haute difficulté (25 secondes)
 
-const SCORE_THRESHOLD_FOR_MAX_DIFFICULTY = 25; // Score à partir duquel la difficulté maximale (délais finaux) est atteinte
+const SCORE_THRESHOLD_FOR_MAX_DIFFICULTY = 20; // Score à partir duquel la difficulté maximale (délais finaux) est atteinte
 
 let nextScreamerTime = Date.now() + getRandomScreamerDelay(); // Calcule la première fois où un screamer peut se déclencher
 let isScreamerActive = false; // Pour éviter de déclencher plusieurs screamers en même temps
