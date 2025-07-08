@@ -1,0 +1,55 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #222;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Empêche le défilement */
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+canvas {
+    background-color: #000;
+    border: 2px solid #eee;
+    display: block; /* Supprime l'espace sous le canvas */
+}
+
+/* Styles pour le screamer */
+#screamerContainer {
+    position: fixed; /* Reste positionné par rapport à la fenêtre */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ANCIEN : background-color: rgba(0, 0, 0, 0.9); // ON ENLÈVE CETTE LIGNE ! */
+    z-index: 1000; /* Assure qu'il est au-dessus du jeu */
+    opacity: 0; /* Commence caché */
+    visibility: hidden;
+    transition: opacity 0.1s ease-in-out; /* Transition douce pour l'apparition */
+}
+
+#screamerContainer.screamer-active {
+    opacity: 1; /* Le conteneur entier devient visible */
+    visibility: visible;
+}
+
+.screamer-image {
+    max-width: 60%; /* Rendre l'image plus petite (ajuste si tu veux) */
+    max-height: 60%; /* Rendre l'image plus petite (ajuste si tu veux) */
+    object-fit: contain; /* Assure que l'image tient dans le conteneur */
+    
+    /* NOUVEAU : Rendre l'image semi-transparente pour un effet "en fond" */
+    opacity: 0.2; /* Ajuste cette valeur (0.1 pour très léger, 0.5 pour plus visible) */
+    
+    transition: opacity 0.1s ease-in-out; /* Pour une transition douce de l'image aussi */
+}
