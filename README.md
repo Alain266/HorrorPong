@@ -1,8 +1,5 @@
 # Pong666 : Le pong de l'horreur
 
-![Capture d'écran du jeu Pong666](image_37583f.png)
-*(Remplacez cette image par une capture d'écran de votre jeu pour un meilleur effet !)*
-
 Un classique du jeu Pong revisité avec une touche d'horreur ! Spooky Pong est un jeu simple où vous affrontez une IA au Pong, mais attention... plus vous marquez de points, plus les "screamers" (sauts de frayeur) deviennent fréquents ! Testez vos réflexes et vos nerfs dans cette expérience de jeu unique.
 
 ## ✨ Fonctionnalités
