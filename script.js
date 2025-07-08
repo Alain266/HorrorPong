@@ -24,19 +24,19 @@ let player2Score = 0;
 const SCREAMERS = [
     {
         image: 'img/01.jpg',
-        audioElement: new Audio('/jumpscare/scary_Screamer.mp3') // Précharge l'audio
+        audioElement: new Audio('jumpscare/scary_Screamer.mp3') // Précharge l'audio
     },
     {
         image: 'img/02.jpg',
-        audioElement: new Audio('/jumpscare/ascending-jumpscare-102061.mp3')
+        audioElement: new Audio('jumpscare/ascending-jumpscare-102061.mp3')
     },
     {
         image: 'img/03.jpg',
-        audioElement: new Audio('/jumpscare/fuzzy-jumpscare-80560.mp3')
+        audioElement: new Audio('jumpscare/fuzzy-jumpscare-80560.mp3')
     },
     {
         image: 'img/04.jpg',
-        audioElement: new Audio('/jumpscare/jump-scare-sound-2-82831.mp3')
+        audioElement: new Audio('jumpscare/jump-scare-sound-2-82831.mp3')
     },
     // Ajoute d'autres objets { image: 'chemin/image.jpg', audioElement: new Audio('chemin/son.mp3') }
 ];
