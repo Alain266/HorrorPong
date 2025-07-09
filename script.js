@@ -56,6 +56,11 @@ const SCORE_THRESHOLD_FOR_MAX_DIFFICULTY = 20; // Score à partir duquel la diff
 let nextScreamerTime = Date.now() + getRandomScreamerDelay(); // Calcule la première fois où un screamer peut se déclencher
 let isScreamerActive = false; // Pour éviter de déclencher plusieurs screamers en même temps
 
+// NOUVEAU : Variables pour l'effet de zoom pendant le screamer
+let isZooming = false;
+let zoomStartTime = 0;
+const ZOOM_SCALE_TARGET = 1.2; // Cible du zoom (1.2 = 20% plus grand)
+
 // Fonction utilitaire pour obtenir un délai aléatoire dans notre fourchette
 // Cette fourchette est maintenant ajustée en fonction du score du joueur 1.
 function getRandomScreamerDelay() {
@@ -69,6 +74,47 @@ function getRandomScreamerDelay() {
 
     // Retourne un délai aléatoire dans la fourchette calculée.
     return Math.random() * (currentMaxDelay - currentMinDelay) + currentMinDelay;
+}
+
+// NOUVEAU : Délais pour les glitches aléatoires
+const MIN_GLITCH_DELAY = 2 * 1000; // Délai minimum entre les glitches (2 secondes)
+const MAX_GLITCH_DELAY = 10 * 1000; // Délai maximum entre les glitches (10 secondes)
+
+// NOUVEAU : Fonction pour obtenir un délai de glitch aléatoire
+function getRandomGlitchDelay() {
+    return Math.random() * (MAX_GLITCH_DELAY - MIN_GLITCH_DELAY) + MIN_GLITCH_DELAY;
+}
+
+// NOUVEAU : Variables et constantes pour l'effet de glitch
+let isGlitchActive = false;
+let glitchEndTime = 0;
+const GLITCH_DURATION = 250;  // Durée du glitch en ms (0.25 secondes pour être plus bref)
+
+// NOUVEAU : Constantes pour l'effet de glitch type "cassette"
+const GLITCH_LINE_COUNT = 15; // Nombre de bandes de glitch à dessiner
+const GLITCH_MAX_LINE_HEIGHT = 20; // Hauteur maximale d'une bande de glitch
+const GLITCH_MAX_OFFSET = 30; // Décalage horizontal maximal des pixels
+
+// NOUVEAU/MODIFIÉ : La fonction simule maintenant un glitch de cassette VHS
+function drawGlitch() {
+    // 1. On capture l'image actuelle du canvas
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    // 2. On crée plusieurs bandes de glitch horizontales
+    for (let i = 0; i < GLITCH_LINE_COUNT; i++) {
+        const y = Math.random() * canvas.height;
+        const lineHeight = Math.random() * GLITCH_MAX_LINE_HEIGHT;
+        const xOffset = (Math.random() - 0.5) * GLITCH_MAX_OFFSET * 2;
+
+        // 3. On décale les pixels à l'intérieur de cette bande
+        for (let line = 0; line < lineHeight; line++) {
+            const currentY = Math.floor(y + line);
+            if (currentY >= canvas.height) continue;
+            // On copie la ligne de pixels avec le décalage
+            ctx.putImageData(imageData, xOffset, currentY, 0, 0, canvas.width, 1);
+        }
+    }
 }
 
 // --- Fonctions de dessin ---
@@ -135,6 +181,8 @@ function resetBall() {
 }
 
 function drawAll() {
+    // Le code de zoom a été déplacé dans gameLoop pour utiliser une transformation CSS,
+    // ce qui produit un véritable effet de zoom sur l'image finale.
     // Fond noir
     drawRect(0, 0, canvas.width, canvas.height, 'black');
 
@@ -146,17 +194,35 @@ function drawAll() {
     drawCircle(ballX, ballY, BALL_SIZE / 2, 'white');
 
     // Score
-    drawText(player1Score, canvas.width / 4, 50);
-    drawText(player2Score, canvas.width * 3 / 4, 50);
+    const scoreColor = isScreamerActive ? 'red' : 'white'; // La couleur du score change pendant un screamer
+    drawText(player1Score, canvas.width / 4, 50, scoreColor);
+    drawText(player2Score, canvas.width * 3 / 4, 50, scoreColor);
+
+    // NOUVEAU : Dessine l'effet de glitch s'il est actif
+    if (isGlitchActive) {
+        drawGlitch();
+    }
+}
+
+// NOUVEAU : Fonction pour déclencher un glitch
+function triggerGlitch() {
+    if (isGlitchActive) return; // Ne pas déclencher si déjà actif
+    isGlitchActive = true;
+    glitchEndTime = Date.now() + GLITCH_DURATION;
 }
 
 // --- Gestion des screamers (MISE À JOUR pour le préchargement et la gestion de la musique de fond) ---
 function triggerScreamer() {
+    // On ne déclenche pas de screamer si un autre est déjà en cours
     if (isScreamerActive) {
         return;
     }
 
     isScreamerActive = true;
+
+    // NOUVEAU : Déclenche l'effet de zoom
+    isZooming = true;
+    zoomStartTime = Date.now();
 
     // Mettre en pause la musique de fond
     backgroundMusic.pause();
@@ -184,6 +250,11 @@ function triggerScreamer() {
         screamerSound.currentTime = 0;
         isScreamerActive = false;
 
+        // NOUVEAU : Arrête l'effet de zoom
+        isZooming = false;
+        canvas.style.transform = ''; // Réinitialise le style CSS
+        screamerContainer.style.transform = ''; // Réinitialise aussi le style du screamer
+
         if (audioInitialized) {
             backgroundMusic.play().catch(e => {
                 console.error("Erreur lors de la reprise de la musique de fond :", e);
@@ -194,10 +265,32 @@ function triggerScreamer() {
     }, SCREAMER_DURATION);
 }
 
+let nextGlitchTime = Date.now() + getRandomGlitchDelay(); // Prochain déclenchement de glitch
+
 // --- Boucle de jeu principale (AVEC VÉRIFICATION ALÉATOIRE DU SCREAMER) ---
 function gameLoop() {
     moveAll();
     drawAll();
+
+    // CORRIGÉ : Gère l'effet de zoom via une transformation CSS pour un effet correct
+    if (isZooming) {
+        const elapsedTime = Date.now() - zoomStartTime;
+        const progress = Math.min(elapsedTime / SCREAMER_DURATION, 1.0);
+        const currentZoom = 1.0 + (ZOOM_SCALE_TARGET - 1.0) * progress;
+        canvas.style.transform = `scale(${currentZoom})`;
+        screamerContainer.style.transform = `scale(${currentZoom})`; // Applique le même zoom au screamer
+    }
+
+    // NOUVEAU : Vérifie si l'effet de glitch doit se terminer
+    if (isGlitchActive && Date.now() >= glitchEndTime) {
+        isGlitchActive = false;
+    }
+
+    // NOUVEAU : Vérification pour déclencher un glitch aléatoire
+    if (!isGlitchActive && Date.now() >= nextGlitchTime) {
+        triggerGlitch();
+        nextGlitchTime = Date.now() + getRandomGlitchDelay();
+    }
 
     // Vérification aléatoire du screamer
     // On vérifie si aucun screamer n'est actif ET si le temps actuel a dépassé le temps de déclenchement prévu
